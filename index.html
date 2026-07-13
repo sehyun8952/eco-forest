@@ -1,18 +1,9 @@
 <!DOCTYPE html>
-<!--
-Created using JS Bin
-http://jsbin.com
-
-Copyright (c) 2026 by anonymous (http://jsbin.com/daxeyadori/1/edit)
-
-Released under the MIT license: http://jsbin.mit-license.org
--->
-<meta name="robots" content="noindex">
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>에코 포레스트 4.5 (Advanced Evolution)</title>
+    <title>숲 키우기 (Grow Forest)</title>
     <style>
         body {
             font-family: 'Malgun Gothic', sans-serif;
@@ -38,7 +29,7 @@ Released under the MIT license: http://jsbin.mit-license.org
         h1 { font-size: 26px; margin-bottom: 5px; }
         .subtitle { color: #666; margin-bottom: 25px; font-size: 13px; }
         
-        /* 🔐 로그인 섹션 */
+        /* 🔐 로그인 영역 */
         .auth-box {
             background: #f3f4f6; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #e5e7eb;
         }
@@ -63,7 +54,7 @@ Released under the MIT license: http://jsbin.mit-license.org
         .shop-item { background: white; border: 1px solid #fef3c7; padding: 10px; border-radius: 8px; text-align: center; flex: 1; }
         .shop-item button { background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-top: 5px; width: 100%; font-weight: bold;}
 
-        /* 📋 세분화된 환경 실천 리스트 (카테고리별 분리) */
+        /* 📋 세분화된 환경 실천 리스트 */
         .quest-group { text-align: left; background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #f3f4f6; margin-bottom: 15px; }
         .category-title { font-weight: bold; color: #15803d; margin: 12px 0 6px 0; font-size: 14px; border-left: 3px solid #22c55e; padding-left: 6px; }
         .quest-item { display: flex; align-items: center; margin: 8px 0; font-size: 13px; }
@@ -81,8 +72,8 @@ Released under the MIT license: http://jsbin.mit-license.org
 <body>
 
 <div class="container">
-    <h1>🌲 에코 포레스트 4.5</h1>
-    <p class="subtitle">세분화된 행동을 실천하고, 구매한 나무의 고유 성장 단계를 확인하세요!</p>
+    <h1>🌲 숲 키우기</h1>
+    <p class="subtitle">매일의 실천을 모아 나만의 나무를 사고 함께 숲을 가꿔보세요!</p>
     
     <div class="auth-box" id="auth-section">
         <input type="text" id="user-id" placeholder="사용할 아이디 입력">
@@ -138,12 +129,12 @@ Released under the MIT license: http://jsbin.mit-license.org
             <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="500" data-money="180" onchange="saveAndRefresh()"> 9단계: 오늘 하루 한 끼 채식 도전하기 (+180🪙)</label></div>
         </div>
 
-        <button class="send-forest-btn" onclick="sendTreeToForest()">🌳 내 나무 공유 숲에 심기</button>
+        <button class="send-forest-btn" onclick="sendTreeToForest()">🌳 내 나무 숲에 심기</button>
         <div><button class="logout-btn" onclick="logout()">로그아웃</button></div>
     </div>
 
     <div class="forest-section">
-        <div class="forest-title">👥 우리 반이 함께 만든 숲</div>
+        <div class="forest-title">👥 함께 만든 숲</div>
         <div id="forest-zone">
             <p id="empty-forest-msg" style="color: #9ca3af; font-size: 13px;">아직 공유 숲에 심어진 나무가 없어요.</p>
         </div>
@@ -154,9 +145,8 @@ Released under the MIT license: http://jsbin.mit-license.org
     let currentUser = "";
     let currentEmoji = "🫘"; 
     let currentMoney = 0;
-    let currentTreeType = "default"; // 기본값: default (maple, apple, palm 변경 가능)
+    let currentTreeType = "default"; 
 
-    // 🔥 [핵심 수정] 나무 종류별 독립적인 4단계 성장 딕셔너리 구조화
     const treeEvolutions = {
         default: [ { min: 0, emoji: '🫘', title: '기본 Lv.1 씨앗' }, { min: 100, emoji: '🌱', title: '기본 Lv.2 새싹' }, { min: 300, emoji: '🌿', title: '기본 Lv.3 줄기' }, { min: 600, emoji: '🌳', title: '기본 Lv.4 일반나무' } ],
         maple:   [ { min: 0, emoji: '🫘', title: '단풍 Lv.1 씨앗' }, { min: 100, emoji: '🌱', title: '단풍 Lv.2 새싹' }, { min: 300, emoji: '🍁', title: '단풍 Lv.3 아기단풍' }, { min: 600, emoji: '🧑‍🌾🍁', title: '단풍 Lv.4 울창한 단풍' } ],
@@ -178,6 +168,7 @@ Released under the MIT license: http://jsbin.mit-license.org
         loadUserData();
     }
 
+    // [동기화 로직 보완] 상태 저장 및 렌더링
     function saveAndRefresh() {
         const checkboxes = document.querySelectorAll('.quest');
         let totalCo2 = 0;
@@ -195,11 +186,9 @@ Released under the MIT license: http://jsbin.mit-license.org
         let finalMoney = currentMoney + earnedMoney;
         document.getElementById('money-text').textContent = finalMoney;
 
-        // 선택된 나무 종류의 성장 배열 가져오기
         let stages = treeEvolutions[currentTreeType];
         let currentStage = stages[0];
 
-        // 촘촘해진 총 이산화탄소 절감량(경험치) 기준 성장 단계 계산
         for (let i = stages.length - 1; i >= 0; i--) {
             if (totalCo2 >= stages[i].min) {
                 currentStage = stages[i];
@@ -215,7 +204,6 @@ Released under the MIT license: http://jsbin.mit-license.org
         localStorage.setItem(`forest_v45_${currentUser}`, JSON.stringify(userData));
     }
 
-    // 🛒 상점에서 돈을 주고 새로운 품종의 나무를 활성화하는 함수
     function buyTreeType(type, price) {
         let totalAvailable = currentMoney;
         document.querySelectorAll('.quest').forEach(cb => { if(cb.checked) totalAvailable += parseInt(cb.dataset.money); });
@@ -231,7 +219,7 @@ Released under the MIT license: http://jsbin.mit-license.org
         currentTreeType = type;
         document.getElementById('unlocked-text').textContent = `현재 키우는 종류: ${typeNames[type]}`;
         saveAndRefresh();
-        alert(`🎉 ${typeNames[type]}종을 구매하여 변경했습니다! 이제 이 나무의 성장 단계가 적용됩니다.`);
+        alert(`🎉 ${typeNames[type]}종을 구매하여 변경했습니다!`);
     }
 
     function loadUserData() {
@@ -263,7 +251,7 @@ Released under the MIT license: http://jsbin.mit-license.org
 
         localStorage.setItem('shared_forest_v45', JSON.stringify(sharedForest));
         renderSharedForest();
-        alert(`🎉 공유 숲에 ${currentUser}님의 현재 진화 상태 나무가 심어졌습니다!`);
+        alert(`🎉 공유 숲에 ${currentUser}님의 나무가 심어졌습니다!`);
     }
 
     function renderSharedForest() {
