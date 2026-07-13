@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2026 by anonymous (http://jsbin.com/daxeyadori/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에코 포레스트 4.5 (Advanced Evolution)</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #f0fdf4;
+            color: #166534;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 550px;
+            width: 100%;
+        }
+        h1 { font-size: 26px; margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 25px; font-size: 13px; }
+        
+        /* 🔐 로그인 섹션 */
+        .auth-box {
+            background: #f3f4f6; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #e5e7eb;
+        }
+        .auth-box input { padding: 10px; border: 2px solid #cbd5e1; border-radius: 8px; width: 60%; margin-right: 8px; outline: none; }
+        .auth-box button { background-color: #2563eb; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* 🌳 메인 대시보드 */
+        .main-dashboard { display: none; }
+        
+        .status-bar {
+            background: #ecfdf5; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #a7f3d0;
+            display: flex; justify-content: space-between; align-items: center; text-align: left;
+        }
+        .money-badge { background: #fef08a; color: #854d0e; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 15px; }
+
+        .tree-display { font-size: 75px; margin: 10px 0; }
+
+        /* 🛒 에코 상점 */
+        .shop-section { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 15px; margin: 15px 0; text-align: left; }
+        .shop-title { font-weight: bold; color: #b45309; margin-bottom: 10px; font-size: 15px; }
+        .shop-items { display: flex; gap: 10px; }
+        .shop-item { background: white; border: 1px solid #fef3c7; padding: 10px; border-radius: 8px; text-align: center; flex: 1; }
+        .shop-item button { background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-top: 5px; width: 100%; font-weight: bold;}
+
+        /* 📋 세분화된 환경 실천 리스트 (카테고리별 분리) */
+        .quest-group { text-align: left; background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #f3f4f6; margin-bottom: 15px; }
+        .category-title { font-weight: bold; color: #15803d; margin: 12px 0 6px 0; font-size: 14px; border-left: 3px solid #22c55e; padding-left: 6px; }
+        .quest-item { display: flex; align-items: center; margin: 8px 0; font-size: 13px; }
+        .quest-item input { margin-right: 10px; transform: scale(1.1); }
+        
+        .send-forest-btn { background-color: #22c55e; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px; }
+        .forest-section { border-top: 2px dashed #a7f3d0; margin-top: 25px; padding-top: 25px; }
+        .forest-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #15803d; }
+        #forest-zone { background: #ecfdf5; border-radius: 15px; min-height: 100px; padding: 15px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; border: 1px solid #d1fae5; }
+        .shared-tree-card { display: flex; flex-direction: column; align-items: center; font-size: 12px; background: white; padding: 8px; border-radius: 10px; min-width: 75px; border: 1px solid #e5e7eb; }
+        .shared-tree-icon { font-size: 32px; margin-bottom: 3px; }
+        .logout-btn { background: none; border: none; color: #9ca3af; text-decoration: underline; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌲 에코 포레스트 4.5</h1>
+    <p class="subtitle">세분화된 행동을 실천하고, 구매한 나무의 고유 성장 단계를 확인하세요!</p>
+    
+    <div class="auth-box" id="auth-section">
+        <input type="text" id="user-id" placeholder="사용할 아이디 입력">
+        <button onclick="login()">접속하기</button>
+    </div>
+
+    <div class="main-dashboard" id="dashboard-section">
+        <div class="status-bar">
+            <div>
+                <span id="user-display" style="font-weight:bold;"></span> 님<br>
+                <span id="lvl-text" style="font-size:14px; color:#16a34a;">Lv.1 씨앗</span>
+            </div>
+            <div class="money-badge">🪙 <span id="money-text">0</span> 코인</div>
+        </div>
+
+        <div class="tree-display" id="tree-icon">🫘</div>
+
+        <div class="shop-section">
+            <div class="shop-title">🛒 에코 상점 (다른 종류의 나무 잠금해제)</div>
+            <div class="shop-items">
+                <div class="shop-item">
+                    <span style="font-size:24px;">🍁</span><br><span style="font-size:11px; font-weight:bold;">단풍나무</span>
+                    <button onclick="buyTreeType('maple', 100)">🪙 100</button>
+                </div>
+                <div class="shop-item">
+                    <span style="font-size:24px;">🍎</span><br><span style="font-size:11px; font-weight:bold;">사과나무</span>
+                    <button onclick="buyTreeType('apple', 250)">🪙 250</button>
+                </div>
+                <div class="shop-item">
+                    <span style="font-size:24px;">🌴</span><br><span style="font-size:11px; font-weight:bold;">야자나무</span>
+                    <button onclick="buyTreeType('palm', 500)">🪙 500</button>
+                </div>
+            </div>
+            <div id="unlocked-text" style="font-size:11px; margin-top:8px; color:#b45309; font-weight:bold;">현재 키우는 종류: 기본 나무</div>
+        </div>
+
+        <div class="quest-group">
+            <p style="margin-top:0; font-weight:bold; color: #15803d; font-size:15px;">🌱 오늘의 정밀 환경 퀘스트</p>
+            
+            <div class="category-title">자원 절약 (쉬움)</div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="30" data-money="15" onchange="saveAndRefresh()"> 1단계: 개인 손수건 사용하기 (+15🪙)</label></div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="40" data-money="20" onchange="saveAndRefresh()"> 2단계: 양치질할 때 컵 사용하기 (+20🪙)</label></div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="50" data-money="25" onchange="saveAndRefresh()"> 3단계: 안 쓰는 플러그 뽑기 (+25🪙)</label></div>
+
+            <div class="category-title">쓰레기 줄이기 (보통)</div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="100" data-money="40" onchange="saveAndRefresh()"> 4단계: 배달 주문 시 일회용 수저 거절하기 (+40🪙)</label></div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="150" data-money="60" onchange="saveAndRefresh()"> 5단계: 카페에서 텀블러 사용하기 (+60🪙)</label></div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="180" data-money="75" onchange="saveAndRefresh()"> 6단계: 비닐봉지 대신 장바구니 쓰기 (+75🪙)</label></div>
+
+            <div class="category-title">생활 습관 개선 (어려움)</div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="300" data-money="100" onchange="saveAndRefresh()"> 7단계: 3층 이하는 계단으로 걸어가기 (+100🪙)</label></div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="400" data-money="130" onchange="saveAndRefresh()"> 8단계: 재활용품 완벽히 분리배출하기 (+130🪙)</label></div>
+            <div class="quest-item"><label><input type="checkbox" class="quest" data-co2="500" data-money="180" onchange="saveAndRefresh()"> 9단계: 오늘 하루 한 끼 채식 도전하기 (+180🪙)</label></div>
+        </div>
+
+        <button class="send-forest-btn" onclick="sendTreeToForest()">🌳 내 나무 공유 숲에 심기</button>
+        <div><button class="logout-btn" onclick="logout()">로그아웃</button></div>
+    </div>
+
+    <div class="forest-section">
+        <div class="forest-title">👥 우리 반이 함께 만든 숲</div>
+        <div id="forest-zone">
+            <p id="empty-forest-msg" style="color: #9ca3af; font-size: 13px;">아직 공유 숲에 심어진 나무가 없어요.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUser = "";
+    let currentEmoji = "🫘"; 
+    let currentMoney = 0;
+    let currentTreeType = "default"; // 기본값: default (maple, apple, palm 변경 가능)
+
+    // 🔥 [핵심 수정] 나무 종류별 독립적인 4단계 성장 딕셔너리 구조화
+    const treeEvolutions = {
+        default: [ { min: 0, emoji: '🫘', title: '기본 Lv.1 씨앗' }, { min: 100, emoji: '🌱', title: '기본 Lv.2 새싹' }, { min: 300, emoji: '🌿', title: '기본 Lv.3 줄기' }, { min: 600, emoji: '🌳', title: '기본 Lv.4 일반나무' } ],
+        maple:   [ { min: 0, emoji: '🫘', title: '단풍 Lv.1 씨앗' }, { min: 100, emoji: '🌱', title: '단풍 Lv.2 새싹' }, { min: 300, emoji: '🍁', title: '단풍 Lv.3 아기단풍' }, { min: 600, emoji: '🧑‍🌾🍁', title: '단풍 Lv.4 울창한 단풍' } ],
+        apple:   [ { min: 0, emoji: '🫘', title: '사과 Lv.1 씨앗' }, { min: 100, emoji: '🌱', title: '사과 Lv.2 새싹' }, { min: 300, emoji: '🍏', title: '사과 Lv.3 청사과' }, { min: 600, emoji: '🍎', title: '사과 Lv.4 탐스러운 사과나무' } ],
+        palm:    [ { min: 0, emoji: '🫘', title: '야자 Lv.1 씨앗' }, { min: 100, emoji: '🌱', title: '야자 Lv.2 새싹' }, { min: 300, emoji: '🌿', title: '야자 Lv.3 야자잎' }, { min: 600, emoji: '🌴', title: '야자 Lv.4 거대 야자수' } ]
+    };
+
+    const typeNames = { default: "기본 나무", maple: "단풍나무", apple: "사과나무", palm: "야자나무" };
+
+    window.onload = function() { renderSharedForest(); };
+
+    function login() {
+        const id = document.getElementById('user-id').value.trim();
+        if (id === "") return alert("아이디를 입력해주세요!");
+        currentUser = id;
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('dashboard-section').style.display = 'block';
+        document.getElementById('user-display').textContent = currentUser;
+        loadUserData();
+    }
+
+    function saveAndRefresh() {
+        const checkboxes = document.querySelectorAll('.quest');
+        let totalCo2 = 0;
+        let earnedMoney = 0;
+        let checkedIndices = [];
+
+        checkboxes.forEach((checkbox, index) => {
+            if (checkbox.checked) {
+                totalCo2 += parseInt(checkbox.dataset.co2);
+                earnedMoney += parseInt(checkbox.dataset.money);
+                checkedIndices.push(index);
+            }
+        });
+
+        let finalMoney = currentMoney + earnedMoney;
+        document.getElementById('money-text').textContent = finalMoney;
+
+        // 선택된 나무 종류의 성장 배열 가져오기
+        let stages = treeEvolutions[currentTreeType];
+        let currentStage = stages[0];
+
+        // 촘촘해진 총 이산화탄소 절감량(경험치) 기준 성장 단계 계산
+        for (let i = stages.length - 1; i >= 0; i--) {
+            if (totalCo2 >= stages[i].min) {
+                currentStage = stages[i];
+                break;
+            }
+        }
+
+        currentEmoji = currentStage.emoji;
+        document.getElementById('tree-icon').textContent = currentEmoji;
+        document.getElementById('lvl-text').textContent = currentStage.title;
+
+        const userData = { money: currentMoney, checks: checkedIndices, treeType: currentTreeType };
+        localStorage.setItem(`forest_v45_${currentUser}`, JSON.stringify(userData));
+    }
+
+    // 🛒 상점에서 돈을 주고 새로운 품종의 나무를 활성화하는 함수
+    function buyTreeType(type, price) {
+        let totalAvailable = currentMoney;
+        document.querySelectorAll('.quest').forEach(cb => { if(cb.checked) totalAvailable += parseInt(cb.dataset.money); });
+
+        if (totalAvailable < price) {
+            alert("🪙 코인이 부족합니다! 환경 실천 퀘스트를 더 달성해보세요.");
+            return;
+        }
+
+        if (currentMoney >= price) { currentMoney -= price; } 
+        else { currentMoney = 0; }
+
+        currentTreeType = type;
+        document.getElementById('unlocked-text').textContent = `현재 키우는 종류: ${typeNames[type]}`;
+        saveAndRefresh();
+        alert(`🎉 ${typeNames[type]}종을 구매하여 변경했습니다! 이제 이 나무의 성장 단계가 적용됩니다.`);
+    }
+
+    function loadUserData() {
+        const savedData = localStorage.getItem(`forest_v45_${currentUser}`);
+        const checkboxes = document.querySelectorAll('.quest');
+        checkboxes.forEach(cb => cb.checked = false);
+
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            currentMoney = data.money || 0;
+            currentTreeType = data.treeType || "default";
+            if (data.checks) {
+                data.checks.forEach(index => { if(checkboxes[index]) checkboxes[index].checked = true; });
+            }
+        } else {
+            currentMoney = 0;
+            currentTreeType = "default";
+        }
+        document.getElementById('unlocked-text').textContent = `현재 키우는 종류: ${typeNames[currentTreeType]}`;
+        saveAndRefresh();
+    }
+
+    function sendTreeToForest() {
+        let sharedForest = JSON.parse(localStorage.getItem('shared_forest_v45')) || [];
+        const existingIndex = sharedForest.findIndex(item => item.name === currentUser);
+
+        if (existingIndex !== -1) { sharedForest[existingIndex].emoji = currentEmoji; } 
+        else { sharedForest.push({ name: currentUser, emoji: currentEmoji }); }
+
+        localStorage.setItem('shared_forest_v45', JSON.stringify(sharedForest));
+        renderSharedForest();
+        alert(`🎉 공유 숲에 ${currentUser}님의 현재 진화 상태 나무가 심어졌습니다!`);
+    }
+
+    function renderSharedForest() {
+        const forestZone = document.getElementById('forest-zone');
+        const emptyMsg = document.getElementById('empty-forest-msg');
+        let sharedForest = JSON.parse(localStorage.getItem('shared_forest_v45')) || [];
+
+        forestZone.querySelectorAll('.shared-tree-card').forEach(card => card.remove());
+
+        if (sharedForest.length > 0) {
+            emptyMsg.style.display = 'none';
+            sharedForest.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'shared-tree-card';
+                card.innerHTML = `<div class="shared-tree-icon">${item.emoji}</div><div style="font-weight:bold;">${item.name}</div>`;
+                forestZone.appendChild(card);
+            });
+        } else { emptyMsg.style.display = 'block'; }
+    }
+
+    function logout() {
+        currentUser = ""; currentMoney = 0; currentTreeType = "default";
+        document.getElementById('user-id').value = "";
+        document.getElementById('auth-section').style.display = 'block';
+        document.getElementById('dashboard-section').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
